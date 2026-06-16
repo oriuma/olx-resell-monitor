@@ -1,0 +1,37 @@
+name: OLX Resell Monitor
+
+on:
+  schedule:
+    # Every 30 minutes, 8:00–23:00 Warsaw time (UTC+2)
+    # Runs at :00 and :30 of each hour UTC 06:00–21:00
+    - cron: "0,30 6-21 * * *"
+  workflow_dispatch:  # allows manual trigger from Actions tab
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to push state file back to repo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run monitor
+        env:
+          TELEGRAM_BOT_TOKEN:  ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_TOKEN:        ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY:   ${{ github.repository }}
+          # Optional overrides (set as repo secrets or vars if needed):
+          # ACTIVE_NICHES:     electronics,clothing,bikes,furniture,sport
+          # MAX_PAGES:         3
+        run: python main.py

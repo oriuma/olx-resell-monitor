@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.env
+data/sent_ids*.json
+*.log
+.DS_Store
